@@ -1,10 +1,12 @@
 #include <iostream>
-#include <cmath> // for std::abs
+#include <cmath> 
+#include <cstdlib> 
+#include <ctime> 
 
 #pragma warning(disable : 4996)
 using namespace std;
 
-class person 
+class person
 {
 private:
     int xpos;
@@ -16,99 +18,172 @@ private:
 
 public:
     person(int xpos = 0, int ypos = 0, int hp = 100, int mp = 50, int damage = 10, int armor = 5)
-        : xpos(xpos), ypos(ypos), hp(hp), mp(mp), damage(damage), armor(armor) {} // »ı¼ºÀÚ
+        : xpos(xpos), ypos(ypos), hp(hp), mp(mp), damage(damage), armor(armor) {} // ìƒì„±ì
 
-    void xmove(int value) { // x ÀÌµ¿
+    void xmove(int value) { // x ì´ë™
         xpos += value;
     }
 
-    void ymove(int value) { // y ÀÌµ¿
+    void ymove(int value) { // y ì´ë™
         ypos += value;
     }
 
-    double distance(const person& other) const { // µÎ °´Ã¼ °£ °Å¸® °è»ê
+    double distance(const person& other) const { // ë‘ ê°ì²´ ê°„ ê±°ë¦¬ ê³„ì‚°
         return sqrt(pow(xpos - other.xpos, 2) + pow(ypos - other.ypos, 2));
     }
 
-    void attack(person& target) { // °ø°İ ÇÔ¼ö
-        if (distance(target) <= 1) 
+    void attack(person& target) { // ê³µê²© í•¨ìˆ˜
+        if (distance(target) <= 1)
         {
             int effective_damage = damage - target.armor;
-            if (effective_damage < 0) effective_damage = 0; // ¹æ¾î·ÂÀÌ °ø°İ·Âº¸´Ù Å¬ °æ¿ì ÃÖ¼Ò µ¥¹ÌÁö´Â 0
+            if (effective_damage < 0) effective_damage = 0; // ë°©ì–´ë ¥ì´ ê³µê²©ë ¥ë³´ë‹¤ í´ ê²½ìš° ìµœì†Œ ë°ë¯¸ì§€ëŠ” 0
             target.hp -= effective_damage;
-            cout << "°ø°İ ¼º°ø! »ó´ë¹æÀÇ Ã¼·Â: " << target.hp << endl;
+            cout << "ê³µê²© ì„±ê³µ! ìƒëŒ€ë°©ì˜ ì²´ë ¥: " << target.hp << endl;
         }
-        else 
+        else
         {
-            cout << "»ó´ë¹æÀÌ »çÁ¤°Å¸® ¹Û¿¡ ÀÖ½À´Ï´Ù. ´õ °¡±îÀÌ ÀÌµ¿ÇÏ½Ê½Ã¿À." << endl;
+            cout << "ìƒëŒ€ë°©ì´ ì‚¬ì •ê±°ë¦¬ ë°–ì— ìˆìŠµë‹ˆë‹¤. ë” ê°€ê¹Œì´ ì´ë™í•˜ì‹­ì‹œì˜¤." << endl;
         }
     }
 
-    void displayStatus() const { // »óÅÂ Ç¥½Ã ÇÔ¼ö
-        cout << "À§Ä¡: (" << xpos << ", " << ypos << "), Ã¼·Â: " << hp << ", ¸¶³ª: " << mp << endl;
+    void specialAttack(person& target) { // íŠ¹ìˆ˜ ê³µê²© í•¨ìˆ˜
+        if (mp >= 10) // ë§ˆë‚˜ê°€ ì¶©ë¶„í•œì§€ í™•ì¸
+        {
+            if (distance(target) <= 1)
+            {
+                int special_damage = damage * 2 - target.armor;
+                if (special_damage < 0) special_damage = 0;
+                target.hp -= special_damage;
+                mp -= 10; // íŠ¹ìˆ˜ ê³µê²©ì— í•„ìš”í•œ ë§ˆë‚˜ ì†Œëª¨
+                cout << "íŠ¹ìˆ˜ ê³µê²© ì„±ê³µ! ìƒëŒ€ë°©ì˜ ì²´ë ¥: " << target.hp << endl;
+                cout << "ë‚¨ì€ ë§ˆë‚˜: " << mp << endl;
+            }
+            else
+            {
+                cout << "ìƒëŒ€ë°©ì´ ì‚¬ì •ê±°ë¦¬ ë°–ì— ìˆìŠµë‹ˆë‹¤. ë” ê°€ê¹Œì´ ì´ë™í•˜ì‹­ì‹œì˜¤." << endl;
+            }
+        }
+        else
+        {
+            cout << "ë§ˆë‚˜ê°€ ë¶€ì¡±í•©ë‹ˆë‹¤. íŠ¹ìˆ˜ ê³µê²©ì„ ì‚¬ìš©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤." << endl;
+        }
     }
 
-    // Ã¼·Â È®ÀÎÀ» À§ÇÑ getter
-    int getHp() const {
+    void heal() { // ì¹˜ìœ  í•¨ìˆ˜
+        if (mp >= 5) // ë§ˆë‚˜ê°€ ì¶©ë¶„í•œì§€ í™•ì¸
+        {
+            hp += 10;
+            mp -= 5; // ì¹˜ìœ ì— í•„ìš”í•œ ë§ˆë‚˜ ì†Œëª¨
+            cout << "ì¹˜ìœ  ì„±ê³µ! ì²´ë ¥: " << hp << ", ë‚¨ì€ ë§ˆë‚˜: " << mp << endl;
+        }
+        else
+        {
+            cout << "ë§ˆë‚˜ê°€ ë¶€ì¡±í•©ë‹ˆë‹¤. ì¹˜ìœ ë¥¼ ì‚¬ìš©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤." << endl;
+        }
+    }
+
+    void displayStatus() const { // ìƒíƒœ í‘œì‹œ í•¨ìˆ˜
+        cout << "ìœ„ì¹˜: (" << xpos << ", " << ypos << "), ì²´ë ¥: " << hp << ", ë§ˆë‚˜: " << mp << endl;
+    }
+
+    // ì²´ë ¥ í™•ì¸ì„ ìœ„í•œ getter
+    int getHp() const 
+    {
         return hp;
     }
 };
 
-void playerTurn(person& player, person& opponent) {
+void playerTurn(person& player, person& opponent, int playerNumber)
+{
     int choice;
-    cout << "ÇÃ·¹ÀÌ¾îÀÇ ÅÏÀÔ´Ï´Ù. Çàµ¿À» ¼±ÅÃÇÏ½Ê½Ã¿À:\n";
-    cout << "1. ÀÌµ¿\n";
-    cout << "2. °ø°İ\n";
+    cout << "----------------------------------------------------------------" << endl;
+    cout << "í”Œë ˆì´ì–´ " << playerNumber << "ì˜ í„´ì…ë‹ˆë‹¤. í–‰ë™ì„ ì„ íƒí•˜ì‹­ì‹œì˜¤:\n";
+    cout << "1. ì´ë™\n";
+    cout << "2. ê³µê²©\n";
+    cout << "3. íŠ¹ìˆ˜ ê³µê²©\n";
+    cout << "4. ì¹˜ìœ \n";
     cin >> choice;
 
-    if (choice == 1) {
+    if (choice == 1) 
+    {
         int x, y;
         bool validMove = false;
         while (!validMove) {
-            cout << "x¿Í y ÀÌµ¿ °ªÀ» ÀÔ·ÂÇÏ½Ê½Ã¿À (-1, 0, 1 Áß ÇÏ³ª): ";
+            cout << "xì™€ y ì´ë™ ê°’ì„ ì…ë ¥í•˜ì‹­ì‹œì˜¤ (-1, 0, 1 ì¤‘ í•˜ë‚˜): ";
             cin >> x >> y;
-            if ((abs(x) <= 1 && abs(y) <= 1) && (abs(x) + abs(y) <= 1)) 
+            if ((abs(x) <= 1 && abs(y) <= 1) && (abs(x) + abs(y) <= 1))
             {
                 player.xmove(x);
                 player.ymove(y);
                 validMove = true;
             }
             else {
-                cout << "Àß¸øµÈ ÀÌµ¿ÀÔ´Ï´Ù. ÇÑ ¹ø¿¡ ÇÑ Ä­¸¸ ÀÌµ¿ÇÒ ¼ö ÀÖ½À´Ï´Ù.\n";
+                cout << "ì˜ëª»ëœ ì´ë™ì…ë‹ˆë‹¤. í•œ ë²ˆì— í•œ ì¹¸ë§Œ ì´ë™í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.\n";
             }
         }
     }
-    else if (choice == 2) 
+    else if (choice == 2)
     {
         player.attack(opponent);
     }
+    else if (choice == 3)
+    {
+        player.specialAttack(opponent);
+    }
+    else if (choice == 4)
+    {
+        player.heal();
+    }
     else {
-        cout << "Àß¸øµÈ ¼±ÅÃÀÔ´Ï´Ù. ÅÏÀ» °Ç³Ê¶İ´Ï´Ù.\n";
+        cout << "ì˜ëª»ëœ ì„ íƒì…ë‹ˆë‹¤. í„´ì„ ê±´ë„ˆëœë‹ˆë‹¤.\n";
     }
 }
 
-int main(void) 
+int main(void)
 {
-    person player1(0, 0); // ÇÃ·¹ÀÌ¾î 1 »ı¼º
-    person player2(1, 1); // ÇÃ·¹ÀÌ¾î 2 »ı¼º
 
-    while (player1.getHp() > 0 && player2.getHp() > 0) {
+    int hp, mp, dam, amr;
+    cout << "ìºë¦­í„°ì˜ ì´ˆê¸° ì²´ë ¥ : ";
+    cin >> hp;
+    cout << "ìºë¦­í„°ì˜ ì´ˆê¸° ë§ˆë‚˜ : ";
+    cin >> mp;
+    cout << "ìºë¦­í„°ì˜ ì´ˆê¸° ê³µê²©ë ¥ : ";
+    cin >> dam;
+    cout << "ìºë¦­í„°ì˜ ì´ˆê¸° ë°©ì–´ë ¥ : ";
+    cin >> amr;
+
+    person player1(0, 0, hp, mp, dam, amr); // í”Œë ˆì´ì–´ 1 ìƒì„±
+    person player2(1, 1, hp, mp, dam, amr); // í”Œë ˆì´ì–´ 2 ìƒì„±
+    cout << "2ê°œì˜ ìºë¦­í„°ê°€ ìƒì„±ë˜ì—ˆìŠµë‹ˆë‹¤" << endl;
+
+    int maxTurns = 20; // ìµœëŒ€ í„´ ìˆ˜
+    int turn = 0;
+
+    while (player1.getHp() > 0 && player2.getHp() > 0 && turn < maxTurns)
+    {
         player1.displayStatus();
         player2.displayStatus();
 
-        playerTurn(player1, player2); // ÇÃ·¹ÀÌ¾î 1 Â÷·Ê
+        playerTurn(player1, player2, 1); // í”Œë ˆì´ì–´ 1 ì°¨ë¡€
 
-        if (player2.getHp() <= 0) break; // ÇÃ·¹ÀÌ¾î 2ÀÇ Ã¼·ÂÀÌ 0 ÀÌÇÏÀÌ¸é °ÔÀÓ Á¾·á
+        if (player2.getHp() <= 0) break; // í”Œë ˆì´ì–´ 2ì˜ ì²´ë ¥ì´ 0 ì´í•˜ì´ë©´ ê²Œì„ ì¢…ë£Œ
 
-        playerTurn(player2, player1); // ÇÃ·¹ÀÌ¾î 2 Â÷·Ê
+        playerTurn(player2, player1, 2); // í”Œë ˆì´ì–´ 2 ì°¨ë¡€
+
+        turn++;
     }
 
-    if (player1.getHp() > 0) {
-        cout << "ÇÃ·¹ÀÌ¾î 1 ½Â¸®!" << endl;
+    if (player1.getHp() > 0 && player2.getHp() <= 0)
+    {
+        cout << "í”Œë ˆì´ì–´ 1 ìŠ¹ë¦¬!" << endl;
     }
-    else {
-        cout << "ÇÃ·¹ÀÌ¾î 2 ½Â¸®!" << endl;
+    else if (player2.getHp() > 0 && player1.getHp() <= 0)
+    {
+        cout << "í”Œë ˆì´ì–´ 2 ìŠ¹ë¦¬!" << endl;
     }
-
+    else
+    {
+        cout << "ë¬´ìŠ¹ë¶€ì…ë‹ˆë‹¤!" << endl;
+    }
     return 0;
 }
