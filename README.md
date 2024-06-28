@@ -2,7 +2,7 @@
 ## 1. purpose
 1) Mastery of Object-Oriented Programming
 2) Mastery of the C++ Language
-3) 
+   <br>
 ## 2. duration
 24.06.25 ~ 24.08.30
 
